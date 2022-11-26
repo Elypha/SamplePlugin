@@ -1,5 +1,6 @@
 using System;
 using Dalamud.Game.Gui.PartyFinder.Types;
+using Dalamud.Logging;
 
 namespace SamplePlugin
 {
@@ -7,21 +8,28 @@ namespace SamplePlugin
     {
         private Plugin Plugin { get; }
 
-        internal Filter(Plugin plugin)
+        public Filter(Plugin plugin)
         {
             this.Plugin = plugin;
 
-            this.Plugin.PartyFinderGui.ReceiveListing += this.handle_listing;
+            this.Plugin.PartyFinderGui.ReceiveListing += this.ReceiveListing;
         }
 
         public void Dispose()
         {
-            this.Plugin.PartyFinderGui.ReceiveListing -= this.handle_listing;
+            this.Plugin.PartyFinderGui.ReceiveListing -= this.ReceiveListing;
         }
 
-        private void handle_listing(PartyFinderListing listing, PartyFinderListingEventArgs args)
+        private void ReceiveListing(PartyFinderListing listing, PartyFinderListingEventArgs args)
         {
-            this.Plugin.description = listing.Description.TextValue;
+            try
+            {
+                this.Plugin.description = listing.Description.TextValue;
+            }
+            catch (Exception ex)
+            {
+                PluginLog.LogError($"Error: {ex}");
+            }
         }
     }
 }

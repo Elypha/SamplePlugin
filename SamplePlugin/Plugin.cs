@@ -1,12 +1,14 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using System;
 using System.IO;
 using System.Reflection;
 using Dalamud.Interface.Windowing;
 using Dalamud.Game.Gui;
 using Dalamud.Game.Gui.PartyFinder;
 using SamplePlugin.Windows;
+using Dalamud.Logging;
 
 
 namespace SamplePlugin
@@ -14,7 +16,7 @@ namespace SamplePlugin
     public sealed class Plugin : IDalamudPlugin
     {
         public string Name => "Sample Plugin";
-        private const string CommandName = "/a";
+        private const string CommandName = "/cc";
 
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
@@ -23,7 +25,7 @@ namespace SamplePlugin
         [PluginService]
         internal PartyFinderGui PartyFinderGui { get; init; } = null!;
         public string description = "empty line :c";
-        public Filter Filter { get; }
+        private Filter Filter { get; }
 
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
@@ -50,7 +52,15 @@ namespace SamplePlugin
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
-            this.Filter = new Filter(this);
+            try
+            {
+                this.Filter = new Filter(this);
+            }
+            catch (Exception ex)
+            {
+                PluginLog.LogError($"Error: {ex}");
+            }
+
         }
 
         public void Dispose()
